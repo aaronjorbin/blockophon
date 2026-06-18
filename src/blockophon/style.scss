@@ -1,0 +1,32 @@
+.wp-block-blockophon-blockophon {
+
+	.blockophon-swatches {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0.25em;
+		align-items: center;
+		vertical-align: middle;
+	}
+
+	.blockophon-swatch-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25em;
+	}
+
+	.blockophon-swatch {
+		display: inline-block;
+		width: 1.25em;
+		height: 1.25em;
+		border: 1px solid rgb(0 0 0 / 20%);
+		border-radius: 2px;
+		cursor: pointer;
+		padding: 0;
+		flex-shrink: 0;
+		vertical-align: middle;
+	}
+
+	.blockophon-swatch__value {
+		font-size: 0.8em;
+	}
+}

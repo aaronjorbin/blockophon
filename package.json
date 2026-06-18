@@ -1,0 +1,34 @@
+{
+	"name": "blockophon",
+	"version": "0.1.0",
+	"description": "Colophon block",
+	"author": "The WordPress Contributors",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build --webpack-copy-php --blocks-manifest",
+		"format": "wp-scripts format",
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --webpack-copy-php --blocks-manifest",
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/blockophon php vendor/bin/phpunit",
+		"dump:option": "wp-env run cli wp option get blockophon_colophon_data"
+	},
+	"dependencies": {
+		"@wordpress/block-editor": "latest",
+		"@wordpress/blocks": "latest",
+		"@wordpress/components": "latest",
+		"@wordpress/i18n": "latest",
+		"@wordpress/interactivity": "6.48.1",
+		"@wordpress/server-side-render": "latest"
+	},
+	"devDependencies": {
+		"@wordpress/env": "latest",
+		"@wordpress/scripts": "32.4.1"
+	}
+}

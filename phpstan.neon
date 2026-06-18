@@ -1,0 +1,19 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - blockophon.php
+        - includes/
+        - src/blockophon/render.php
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - stubs/wp-ai-client.php
+    scanFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - stubs/wp-ai-client.php
+    excludePaths:
+        - vendor
+        - node_modules
+        - build

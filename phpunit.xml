@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertDeprecationsToExceptions="false"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="false"
+	convertWarningsToExceptions="false"
+>
+	<testsuites>
+		<testsuite name="Blockophon">
+			<directory suffix="Test.php">tests/</directory>
+		</testsuite>
+	</testsuites>
+	<coverage processUncoveredFiles="true">
+		<include>
+			<directory suffix=".php">includes/</directory>
+			<file>blockophon.php</file>
+			<file>build/blockophon/render.php</file>
+		</include>
+	</coverage>
+</phpunit>
