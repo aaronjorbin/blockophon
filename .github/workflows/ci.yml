@@ -92,10 +92,11 @@ jobs:
       - name: Build
         run: npm run build
 
-
       - name: Install dist-archive command
         run: |
           unset GITHUB_TOKEN
+          unset COMPOSER_AUTH
+          rm -f ~/.composer/auth.json ~/.config/composer/auth.json
           wp package install wp-cli/dist-archive-command:@stable
 
       - name: Build distribution archive
