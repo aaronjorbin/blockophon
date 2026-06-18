@@ -94,6 +94,8 @@ jobs:
 
       - name: Install dist-archive command
         run: |
+          # Unset GITHUB_TOKEN to prevent Composer from using it as a GitHub auth token,
+          # which causes rate-limiting errors when wp-cli installs packages via Composer.
           unset GITHUB_TOKEN
           wp package install wp-cli/dist-archive-command:v3.1.0
 
