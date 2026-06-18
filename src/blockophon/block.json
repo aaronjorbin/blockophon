@@ -44,6 +44,10 @@
 		"useAiText": {
 			"type": "boolean",
 			"default": false
+		},
+		"customText": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"textdomain": "blockophon",

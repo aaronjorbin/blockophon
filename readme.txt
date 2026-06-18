@@ -1,5 +1,5 @@
 === Blockophon ===
-Contributors:      aaronjorbin
+Contributors:      jorbin
 Tags:              block, colophon, typography, theme, plugins
 Requires at least: 7.0
 Tested up to:      7.0

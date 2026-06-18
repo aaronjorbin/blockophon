@@ -22,10 +22,11 @@ $blockophon_show_plugins    = (bool) ( $blockophon_attributes['showPlugins'] ?? 
 $blockophon_show_colors     = (bool) ( $blockophon_attributes['showColors'] ?? true );
 $blockophon_show_typography = (bool) ( $blockophon_attributes['showTypography'] ?? true );
 $blockophon_use_ai_text     = (bool) ( $blockophon_attributes['useAiText'] ?? false );
+$blockophon_custom_text     = (string) ( $blockophon_attributes['customText'] ?? '' );
 
 $blockophon_ai_text       = null;
 $blockophon_ai_error_html = '';
-if ( $blockophon_use_ai_text ) {
+if ( '' === $blockophon_custom_text && $blockophon_use_ai_text ) {
 	$blockophon_ai_result = blockophon_get_ai_text( $blockophon_data, $blockophon_attributes );
 	if ( is_string( $blockophon_ai_result ) ) {
 		$blockophon_ai_text = $blockophon_ai_result;
@@ -49,7 +50,9 @@ $blockophon_site_name = get_bloginfo( 'name' );
 <?php if ( '' !== $blockophon_ai_error_html ) : ?>
 	<?php echo wp_kses_post( $blockophon_ai_error_html ); ?>
 <?php endif; ?>
-<?php if ( $blockophon_ai_text ) : ?>
+<?php if ( '' !== $blockophon_custom_text ) : ?>
+	<?php echo wp_kses_post( $blockophon_custom_text ); ?>
+<?php elseif ( $blockophon_ai_text ) : ?>
 	<?php echo wp_kses_post( wpautop( $blockophon_ai_text ) ); ?>
 <?php else : ?>
 	<?php

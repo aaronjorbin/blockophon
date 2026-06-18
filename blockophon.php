@@ -5,7 +5,8 @@
  * Version:           0.1.0
  * Requires at least: 7.0
  * Requires PHP:      7.4
- * Author:            The WordPress Contributors
+ * Author:            Aaron Jorbin
+ * Author URI:        https://aaron.jorb.in
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       blockophon
@@ -51,3 +52,29 @@ function blockophon_enqueue_editor_data(): void {
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'blockophon_enqueue_editor_data' );
+
+/**
+ * Registers Blockophon REST API routes.
+ *
+ * @return void
+ */
+function blockophon_register_rest_routes(): void {
+	register_rest_route(
+		'blockophon/v1',
+		'/ai-text',
+		array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => static function (): WP_REST_Response {
+				$blockophon_cached  = get_option( 'blockophon_colophon_data', array() );
+				$blockophon_ai_text = is_array( $blockophon_cached ) && isset( $blockophon_cached['ai_text'] )
+					? (string) $blockophon_cached['ai_text']
+					: '';
+				return new WP_REST_Response( array( 'text' => $blockophon_ai_text ) );
+			},
+			'permission_callback' => static function (): bool {
+				return current_user_can( 'edit_posts' );
+			},
+		)
+	);
+}
+add_action( 'rest_api_init', 'blockophon_register_rest_routes' );
