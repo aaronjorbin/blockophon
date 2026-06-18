@@ -95,6 +95,8 @@ jobs:
 
       - name: Install dist-archive command
         run: wp package install wp-cli/dist-archive-command:@stable
+        env:
+          COMPOSER_AUTH: '{}'
 
       - name: Build distribution archive
         run: |
