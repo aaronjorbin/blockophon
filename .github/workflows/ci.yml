@@ -80,13 +80,28 @@ jobs:
           node-version: lts/*
           cache: npm
 
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: wp-cli
+          coverage: none
+
       - name: Install Node dependencies
         run: npm ci
 
       - name: Build
         run: npm run build
 
+      - name: Install dist-archive command
+        run: wp package install wp-cli/dist-archive-command:@stable
+
+      - name: Build distribution archive
+        run: |
+          wp dist-archive . ./blockophon.zip
+          mkdir tmp-build
+          unzip blockophon.zip -d tmp-build
+
       - uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: '.'
+          build-dir: './tmp-build/blockophon'
           wp-version: latest
