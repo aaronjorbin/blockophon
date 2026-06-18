@@ -14,6 +14,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const {
 		showTheme,
 		showPlugins,
+		showPluginDetails,
 		showColors,
 		showTypography,
 		useAiText,
@@ -71,6 +72,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ showPlugins }
 						onChange={ ( v ) =>
 							setAttributes( { showPlugins: v } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Plugin Details', 'blockophon' ) }
+						checked={ showPluginDetails }
+						onChange={ ( v ) =>
+							setAttributes( { showPluginDetails: v } )
 						}
 					/>
 					<ToggleControl

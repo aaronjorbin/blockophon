@@ -16,13 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $blockophon_data = blockophon_get_data();
 
-$blockophon_attributes      = (array) ( $attributes ?? array() );
-$blockophon_show_theme      = (bool) ( $blockophon_attributes['showTheme'] ?? true );
-$blockophon_show_plugins    = (bool) ( $blockophon_attributes['showPlugins'] ?? true );
-$blockophon_show_colors     = (bool) ( $blockophon_attributes['showColors'] ?? true );
-$blockophon_show_typography = (bool) ( $blockophon_attributes['showTypography'] ?? true );
-$blockophon_use_ai_text     = (bool) ( $blockophon_attributes['useAiText'] ?? false );
-$blockophon_custom_text     = (string) ( $blockophon_attributes['customText'] ?? '' );
+$blockophon_attributes          = (array) ( $attributes ?? array() );
+$blockophon_show_theme          = (bool) ( $blockophon_attributes['showTheme'] ?? true );
+$blockophon_show_plugins        = (bool) ( $blockophon_attributes['showPlugins'] ?? true );
+$blockophon_show_colors         = (bool) ( $blockophon_attributes['showColors'] ?? true );
+$blockophon_show_typography     = (bool) ( $blockophon_attributes['showTypography'] ?? true );
+$blockophon_use_ai_text         = (bool) ( $blockophon_attributes['useAiText'] ?? false );
+$blockophon_show_plugin_details = (bool) ( $blockophon_attributes['showPluginDetails'] ?? true );
+$blockophon_custom_text         = (string) ( $blockophon_attributes['customText'] ?? '' );
 
 $blockophon_ai_text       = null;
 $blockophon_ai_error_html = '';
@@ -196,16 +197,17 @@ if ( $blockophon_show_plugins ) :
 		?>
 	</p>
 
-	<?php if ( ! empty( $blockophon_data['plugins'] ) ) : ?>
-		<details class="blockophon-plugin-list">
-			<summary><?php esc_html_e( 'Plugin details', 'blockophon' ); ?></summary>
-			<ul>
-				<?php foreach ( $blockophon_data['plugins'] as $blockophon_plugin_data ) : ?>
-					<li><?php echo esc_html( (string) $blockophon_plugin_data['Name'] ); ?> <?php echo esc_html( (string) $blockophon_plugin_data['Version'] ); ?></li>
-				<?php endforeach; ?>
-			</ul>
-		</details>
-	<?php endif; ?>
+<?php endif; ?>
+
+<?php if ( $blockophon_show_plugin_details && ! empty( $blockophon_data['plugins'] ) ) : ?>
+	<details class="blockophon-plugin-list">
+		<summary><?php esc_html_e( 'Plugin details', 'blockophon' ); ?></summary>
+		<ul>
+			<?php foreach ( $blockophon_data['plugins'] as $blockophon_plugin_data ) : ?>
+				<li><?php echo esc_html( (string) $blockophon_plugin_data['Name'] ); ?> <?php echo esc_html( (string) $blockophon_plugin_data['Version'] ); ?></li>
+			<?php endforeach; ?>
+		</ul>
+	</details>
 <?php endif; ?>
 
 </div>
