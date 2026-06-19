@@ -80,7 +80,7 @@ jobs:
           node-version: lts/*
           cache: npm
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: '8.3'
           tools: wp-cli
@@ -106,7 +106,7 @@ jobs:
           mkdir tmp-build
           unzip blockophon.zip -d tmp-build
 
-      - uses: wordpress/plugin-check-action@98a1788320d0add90df2d8183934ecccbc4e05d2 # v1
+      - uses: wordpress/plugin-check-action@98a1788320d0add90df2d8183934ecccbc4e05d2 # v1.1.7
         with:
           build-dir: './tmp-build/blockophon'
           wp-version: latest
