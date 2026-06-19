@@ -16,3 +16,6 @@
 /tests
 node_modules
 vendor
+.distignore
+.gitignore
+.npmrc
