@@ -83,10 +83,8 @@ $blockophon_site_name = get_bloginfo( 'name' );
 				$blockophon_author_link
 			);
 		}
-		?>
-		<p><?php echo wp_kses_post( $blockophon_theme_phrase ); ?></p>
-		<?php
-		$blockophon_c = $blockophon_data['customizations'];
+		$blockophon_combined_phrase = $blockophon_theme_phrase;
+		$blockophon_c               = $blockophon_data['customizations'];
 		if ( $blockophon_c['is_customized'] ) :
 			$blockophon_custom_items = array();
 
@@ -126,10 +124,11 @@ $blockophon_site_name = get_bloginfo( 'name' );
 			}
 
 			/* translators: %s: comma-separated list of customization types */
-			$blockophon_custom_phrase = sprintf( __( 'It features %s.', 'blockophon' ), $blockophon_custom_list );
-			?>
-			<p><?php echo esc_html( $blockophon_custom_phrase ); ?></p>
-		<?php endif; ?>
+			$blockophon_custom_phrase    = sprintf( __( 'It features %s.', 'blockophon' ), $blockophon_custom_list );
+			$blockophon_combined_phrase .= ' ' . esc_html( $blockophon_custom_phrase );
+		endif;
+		?>
+		<p><?php echo wp_kses_post( $blockophon_combined_phrase ); ?></p>
 	<?php endif; ?>
 
 	<?php
