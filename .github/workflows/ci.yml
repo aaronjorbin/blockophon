@@ -95,12 +95,11 @@ jobs:
         run: npm run build
 
       - name: Install dist-archive command
-        env:
-          # Override COMPOSER_AUTH to prevent Composer from using the GitHub token
-          # (set by setup-php) which causes rate-limiting errors when wp-cli installs
-          # packages via Composer.
-          COMPOSER_AUTH: '{}'
-        run: wp package install wp-cli/dist-archive-command:v3.1.0
+        run: |
+          unset GITHUB_TOKEN
+          unset COMPOSER_AUTH
+          rm -f ~/.composer/auth.json ~/.config/composer/auth.json
+          wp package install wp-cli/dist-archive-command:v3.1.0
 
       - name: Build distribution archive
         run: |
