@@ -193,12 +193,13 @@ function blockophon_detect_custom_global_styles(): bool {
 }
 
 /**
- * Clears the cached colophon data so it regenerates on next request.
+ * Clears the cached colophon data and immediately rebuilds it.
  *
  * @return void
  */
 function blockophon_refresh_cache(): void {
 	delete_option( 'blockophon_colophon_data' );
+	blockophon_get_data();
 }
 add_action( 'switch_theme', 'blockophon_refresh_cache' );
 add_action( 'activated_plugin', 'blockophon_refresh_cache' );
