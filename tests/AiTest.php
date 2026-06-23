@@ -284,38 +284,15 @@ class AiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Prompt includes color names when showColors is true.
+	 * Colors and plugins are separate blocks; the prose prompt never includes them.
 	 *
 	 * @return void
 	 */
-	public function test_prompt_includes_colors_when_show_colors(): void {
+	public function test_prompt_never_includes_colors_or_plugins(): void {
 		$prompt = blockophon_build_ai_prompt( self::$sample_data, self::$all_on );
 
-		$this->assertStringContainsString( 'Black', $prompt );
-		$this->assertStringContainsString( 'White', $prompt );
-	}
-
-	/**
-	 * Prompt includes plugin count when showPlugins is true.
-	 *
-	 * @return void
-	 */
-	public function test_prompt_includes_plugin_count_when_show_plugins(): void {
-		$prompt = blockophon_build_ai_prompt( self::$sample_data, self::$all_on );
-
-		$this->assertStringContainsString( 'Active plugins:', $prompt );
-		$this->assertStringContainsString( 'Hello Dolly', $prompt );
-	}
-
-	/**
-	 * Prompt omits plugin info when showPlugins is false.
-	 *
-	 * @return void
-	 */
-	public function test_prompt_excludes_plugins_when_show_plugins_false(): void {
-		$attrs  = array_merge( self::$all_on, array( 'showPlugins' => false ) );
-		$prompt = blockophon_build_ai_prompt( self::$sample_data, $attrs );
-
+		$this->assertStringNotContainsString( 'Black', $prompt );
+		$this->assertStringNotContainsString( 'White', $prompt );
 		$this->assertStringNotContainsString( 'Active plugins:', $prompt );
 		$this->assertStringNotContainsString( 'Hello Dolly', $prompt );
 	}

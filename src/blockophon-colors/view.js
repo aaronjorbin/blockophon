@@ -1,6 +1,6 @@
 import { store, getContext } from '@wordpress/interactivity';
 
-store( 'blockophon/blockophon', {
+store( 'blockophon/colors', {
 	actions: {
 		toggleColorValue() {
 			const context = getContext();

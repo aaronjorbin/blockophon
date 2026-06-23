@@ -1,0 +1,4 @@
+coverage/
+build/
+vendor/
+node_modules/
