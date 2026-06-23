@@ -43,53 +43,68 @@ class CacheTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Cache is cleared when the active theme changes.
+	 * Cache is refreshed when the active theme changes.
 	 *
 	 * @return void
 	 */
 	public function test_switch_theme_clears_cache(): void {
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 		do_action( 'switch_theme' );
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ), 'Cache should be cleared on switch_theme.' );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data, 'Cache should be refreshed on switch_theme.' );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after switch_theme.' );
 	}
 
 	/**
-	 * Cache is cleared when a plugin is activated.
+	 * Cache is refreshed when a plugin is activated.
 	 *
 	 * @return void
 	 */
 	public function test_activated_plugin_clears_cache(): void {
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 		do_action( 'activated_plugin', 'some-plugin/some-plugin.php' );
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ), 'Cache should be cleared on activated_plugin.' );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data, 'Cache should be refreshed on activated_plugin.' );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after activated_plugin.' );
 	}
 
 	/**
-	 * Cache is cleared when a plugin is deactivated.
+	 * Cache is refreshed when a plugin is deactivated.
 	 *
 	 * @return void
 	 */
 	public function test_deactivated_plugin_clears_cache(): void {
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 		do_action( 'deactivated_plugin', 'some-plugin/some-plugin.php' );
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ), 'Cache should be cleared on deactivated_plugin.' );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data, 'Cache should be refreshed on deactivated_plugin.' );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after deactivated_plugin.' );
 	}
 
 	/**
-	 * Cache is cleared after a plugin upgrade completes.
+	 * Cache is refreshed after a plugin upgrade completes.
 	 *
 	 * @return void
 	 */
 	public function test_upgrader_process_complete_clears_cache_for_plugin_upgrade(): void {
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 		do_action( 'upgrader_process_complete', new stdClass(), array( 'type' => 'plugin' ) );
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ), 'Cache should be cleared after plugin upgrade.' );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data, 'Cache should be refreshed after plugin upgrade.' );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after plugin upgrade.' );
 	}
 
 	/**
-	 * Cache is cleared after a theme upgrade completes.
+	 * Cache is refreshed after a theme upgrade completes.
 	 *
 	 * @return void
 	 */
 	public function test_upgrader_process_complete_clears_cache_for_theme_upgrade(): void {
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 		do_action( 'upgrader_process_complete', new stdClass(), array( 'type' => 'theme' ) );
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ), 'Cache should be cleared after theme upgrade.' );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data, 'Cache should be refreshed after theme upgrade.' );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after theme upgrade.' );
 	}
 
 	/**
