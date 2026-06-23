@@ -226,33 +226,35 @@ class CustomizationsTest extends WP_UnitTestCase {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * Saving a wp_template post clears the cache.
+	 * Saving a wp_template post refreshes the cache.
 	 *
 	 * @return void
 	 */
 	public function test_cache_cleared_on_template_save(): void {
-		blockophon_get_data();
-		$this->assertNotFalse( get_option( 'blockophon_colophon_data' ) );
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 
 		self::create_template_post( 'single-cache' );
 
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ) );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after template save.' );
 	}
 
 	/**
-	 * Saving a wp_global_styles post clears the cache.
+	 * Saving a wp_global_styles post refreshes the cache.
 	 *
 	 * @return void
 	 */
 	public function test_cache_cleared_on_global_styles_save(): void {
-		blockophon_get_data();
-		$this->assertNotFalse( get_option( 'blockophon_colophon_data' ) );
+		update_option( 'blockophon_colophon_data', array( 'stale' => true ), false );
 
 		self::create_global_styles_post(
 			(string) wp_json_encode( array( 'styles' => array() ) )
 		);
 
-		$this->assertFalse( get_option( 'blockophon_colophon_data' ) );
+		$data = get_option( 'blockophon_colophon_data' );
+		$this->assertIsArray( $data );
+		$this->assertArrayNotHasKey( 'stale', $data, 'Cache should contain fresh data after global styles save.' );
 	}
 
 	// -----------------------------------------------------------------------
