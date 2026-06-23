@@ -203,7 +203,7 @@ if ( $blockophon_show_plugins ) :
 		<summary><?php esc_html_e( 'Plugin details', 'blockophon' ); ?></summary>
 		<ul>
 			<?php foreach ( $blockophon_data['plugins'] as $blockophon_plugin_data ) : ?>
-				<li><?php echo esc_html( (string) $blockophon_plugin_data['Name'] ); ?> <?php echo esc_html( (string) $blockophon_plugin_data['Version'] ); ?></li>
+				<li><?php echo esc_html( (string) $blockophon_plugin_data['Name'] ); ?></li>
 			<?php endforeach; ?>
 		</ul>
 	</details>
