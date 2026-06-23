@@ -1,17 +1,37 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	InspectorControls,
+	InnerBlocks,
 	useBlockProps,
-	RichText,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, Button } from '@wordpress/components';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 import apiFetch from '@wordpress/api-fetch';
-import ServerSideRender from '@wordpress/server-side-render';
 import './editor.scss';
 
-export default function Edit( { attributes, setAttributes } ) {
-	const { showTheme, showTypography, useAiText, customText } = attributes;
+const ALLOWED_BLOCKS = [
+	'core/paragraph',
+	'core/list',
+	'core/heading',
+	'blockophon/colors',
+	'blockophon/plugins',
+];
+
+const DEFAULT_TEMPLATE = [
+	[ 'blockophon/colors', {} ],
+	[ 'blockophon/plugins', {} ],
+];
+
+const PROSE_BLOCK_NAMES = new Set( [
+	'core/paragraph',
+	'core/list',
+	'core/heading',
+] );
+
+export default function Edit( { attributes, setAttributes, clientId } ) {
+	const { showTheme, showTypography, useAiText, isConverted } = attributes;
 	const aiAvailable = window.blockophonEditorData?.aiAvailable;
 
 	const [ isGenerating, setIsGenerating ] = useState( false );
@@ -20,6 +40,73 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const [ isConverting, setIsConverting ] = useState( false );
 	const [ convertError, setConvertError ] = useState( '' );
+
+	const [ prosePreview, setProsePreview ] = useState( '' );
+
+	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
+	const innerBlocks = useSelect(
+		( select ) => select( 'core/block-editor' ).getBlocks( clientId ),
+		[ clientId ]
+	);
+
+	// Live prose preview when not yet converted.
+	useEffect( () => {
+		if ( isConverted ) {
+			setProsePreview( '' );
+			return;
+		}
+		const params = new URLSearchParams( {
+			show_theme: showTheme ? '1' : '0',
+			show_typography: showTypography ? '1' : '0',
+		} );
+		apiFetch( { path: `/blockophon/v1/prose?${ params }` } )
+			.then( ( response ) => setProsePreview( response?.html ?? '' ) )
+			.catch( () => setProsePreview( '' ) );
+	}, [ isConverted, showTheme, showTypography ] );
+
+	// Parse HTML into core/paragraph (or heading) blocks, prepend to inner
+	// blocks, preserving existing blockophon sub-blocks.
+	const insertParagraphBlocks = useCallback(
+		( html ) => {
+			const parser = new window.DOMParser();
+			const doc = parser.parseFromString( html, 'text/html' );
+			const elements = Array.from( doc.body.children );
+
+			const proseBlocks =
+				elements.length > 0
+					? elements.map( ( el ) => {
+							const tag = el.tagName.toUpperCase();
+							if ( /^H[1-6]$/.test( tag ) ) {
+								return createBlock( 'core/heading', {
+									content: el.innerHTML,
+									level: parseInt( tag[ 1 ], 10 ),
+								} );
+							}
+							return createBlock( 'core/paragraph', {
+								content: el.innerHTML,
+							} );
+					  } )
+					: html
+							.split( /\n\n+/ )
+							.filter( ( p ) => p.trim() )
+							.map( ( p ) =>
+								createBlock( 'core/paragraph', {
+									content: p.trim(),
+								} )
+							);
+
+			const nonProseBlocks = innerBlocks.filter(
+				( block ) => ! PROSE_BLOCK_NAMES.has( block.name )
+			);
+
+			replaceInnerBlocks( clientId, [
+				...proseBlocks,
+				...nonProseBlocks,
+			] );
+			setAttributes( { isConverted: true } );
+		},
+		[ clientId, innerBlocks, replaceInnerBlocks, setAttributes ]
+	);
 
 	const handleGenerateOptions = useCallback( async () => {
 		setIsGenerating( true );
@@ -55,10 +142,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				.filter( ( p ) => p.trim() )
 				.map( ( p ) => `<p>${ p.trim() }</p>` )
 				.join( '' );
-			setAttributes( { customText: html || `<p>${ text }</p>` } );
+			insertParagraphBlocks( html || `<p>${ text }</p>` );
 			setAiOptions( [] );
 		},
-		[ setAttributes ]
+		[ insertParagraphBlocks ]
 	);
 
 	const handleConvert = useCallback( async () => {
@@ -72,7 +159,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			const response = await apiFetch( {
 				path: `/blockophon/v1/prose?${ params }`,
 			} );
-			const html = response?.html || '';
+			const html = response?.html ?? '';
 			if ( ! html ) {
 				setConvertError(
 					__(
@@ -82,13 +169,21 @@ export default function Edit( { attributes, setAttributes } ) {
 				);
 				return;
 			}
-			setAttributes( { customText: html } );
+			insertParagraphBlocks( html );
 		} catch {
 			setConvertError( __( 'Failed to fetch text.', 'blockophon' ) );
 		} finally {
 			setIsConverting( false );
 		}
-	}, [ setAttributes, showTheme, showTypography ] );
+	}, [ showTheme, showTypography, insertParagraphBlocks ] );
+
+	const handleReset = useCallback( () => {
+		const nonProseBlocks = innerBlocks.filter(
+			( block ) => ! PROSE_BLOCK_NAMES.has( block.name )
+		);
+		replaceInnerBlocks( clientId, nonProseBlocks );
+		setAttributes( { isConverted: false } );
+	}, [ clientId, innerBlocks, replaceInnerBlocks, setAttributes ] );
 
 	const blockProps = useBlockProps();
 
@@ -110,7 +205,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				{ aiAvailable && ! customText && (
+				{ aiAvailable && ! isConverted && (
 					<PanelBody title={ __( 'AI', 'blockophon' ) }>
 						<ToggleControl
 							label={ __(
@@ -214,13 +309,8 @@ export default function Edit( { attributes, setAttributes } ) {
 				) }
 
 				<PanelBody title={ __( 'Editable Text', 'blockophon' ) }>
-					{ customText ? (
-						<Button
-							variant="secondary"
-							onClick={ () =>
-								setAttributes( { customText: '' } )
-							}
-						>
+					{ isConverted ? (
+						<Button variant="secondary" onClick={ handleReset }>
 							{ __( 'Reset to generated text', 'blockophon' ) }
 						</Button>
 					) : (
@@ -252,29 +342,35 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 
-			{ customText ? (
-				<div { ...blockProps }>
-					<RichText
-						tagName="div"
-						multiline="p"
-						value={ customText }
-						onChange={ ( value ) =>
-							setAttributes( { customText: value } )
-						}
-						placeholder={ __(
-							'Write your colophon…',
-							'blockophon'
+			<div { ...blockProps }>
+				{ ! isConverted && prosePreview && (
+					<div
+						className="blockophon-prose-preview"
+						// Output is from our own REST endpoint, sanitized via
+						// wp_kses_post in blockophon_get_prose_html().
+						dangerouslySetInnerHTML={ { __html: prosePreview } }
+					/>
+				) }
+				{ ! isConverted && ! prosePreview && (
+					<p className="blockophon-prose-placeholder">
+						{ sprintf(
+							/* translators: %s: AI or auto-generated */
+							__(
+								'%s prose will appear here on the front end.',
+								'blockophon'
+							),
+							aiAvailable && useAiText
+								? 'AI-generated'
+								: 'Auto-generated'
 						) }
-					/>
-				</div>
-			) : (
-				<div { ...blockProps }>
-					<ServerSideRender
-						block="blockophon/blockophon"
-						attributes={ attributes }
-					/>
-				</div>
-			) }
+					</p>
+				) }
+				<InnerBlocks
+					allowedBlocks={ ALLOWED_BLOCKS }
+					template={ DEFAULT_TEMPLATE }
+					templateLock={ false }
+				/>
+			</div>
 		</>
 	);
 }

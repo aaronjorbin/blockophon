@@ -37,9 +37,9 @@
 			"type": "boolean",
 			"default": false
 		},
-		"customText": {
-			"type": "string",
-			"default": ""
+		"isConverted": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "blockophon",
