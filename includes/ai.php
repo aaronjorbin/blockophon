@@ -22,7 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function blockophon_is_ai_available(): bool {
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- WP Core 7.0+ function.
 	$available = wp_ai_client_prompt( 'test' )->is_supported_for_text_generation();
 	return (bool) apply_filters( 'blockophon_is_ai_available', $available );
 }
@@ -49,8 +48,9 @@ function blockophon_build_ai_prompt( array $data, array $attributes ): string {
 		$t = (array) $data['theme'];
 		if ( ! empty( $t['is_child'] ) ) {
 			$lines[] = sprintf(
-				'Theme: %s (child theme of %s by %s)',
+				'Theme: %s by %s (child theme of %s by %s)',
 				(string) ( $t['name'] ?? '' ),
+				(string) ( $t['author'] ?? '' ),
 				(string) ( $t['parent_name'] ?? '' ),
 				(string) ( $t['parent_author'] ?? '' )
 			);
@@ -139,7 +139,7 @@ function blockophon_generate_ai_colophon( array $data, array $attributes ) {
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- WP Core 7.0+ function.
 	return wp_ai_client_prompt( $prompt )
 		->using_system_instruction(
-			'You are writing a colophon for a WordPress site. Write 1-3 short, conversational paragraphs. Be factual and friendly. Do not add headings or bullet points.'
+			'You are writing a colophon for a WordPress site. Write 1-3 short, conversational paragraphs. Be factual and friendly. Do not add headings or bullet points. Include that this is a WordPress site.'
 		)
 		->generate_text();
 }
