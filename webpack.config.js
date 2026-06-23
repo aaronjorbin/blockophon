@@ -1,9 +1,13 @@
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 
-module.exports = {
-	...defaultConfig,
+const applyOptimization = ( config ) => ( {
+	...config,
 	optimization: {
-		...defaultConfig.optimization,
+		...config.optimization,
 		concatenateModules: false,
 	},
-};
+} );
+
+module.exports = Array.isArray( defaultConfig )
+	? defaultConfig.map( applyOptimization )
+	: applyOptimization( defaultConfig );
