@@ -214,5 +214,70 @@ function blockophon_register_rest_routes(): void {
 			),
 		)
 	);
+
+	register_rest_route(
+		'blockophon/v1',
+		'/ai-options',
+		array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => static function ( WP_REST_Request $request ): WP_REST_Response {
+				if ( ! blockophon_is_ai_available() ) {
+					return new WP_REST_Response(
+						array( 'message' => __( 'No AI connector is available.', 'blockophon' ) ),
+						503
+					);
+				}
+
+				$attributes = array(
+					'showTheme'      => (bool) ( $request->get_json_param( 'showTheme' ) ?? true ),
+					'showTypography' => (bool) ( $request->get_json_param( 'showTypography' ) ?? true ),
+				);
+
+				$prompt = blockophon_build_ai_prompt( blockophon_get_data(), $attributes );
+
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- WP Core 7.0+
+				$result = wp_ai_client_prompt( $prompt )
+					->using_system_instruction(
+						'You are writing a colophon for a WordPress site. Generate exactly 3 distinct variations of a colophon. Each variation should be 1-3 short, conversational paragraphs — factual and friendly, no headings or bullet points. Separate each variation with exactly: ---'
+					)
+					->generate_text();
+
+				if ( is_wp_error( $result ) ) {
+					return new WP_REST_Response(
+						array( 'message' => $result->get_error_message() ),
+						503
+					);
+				}
+
+				$parts   = preg_split( '/\n?\s*---+\s*\n?/', (string) $result );
+				$options = array_values(
+					array_filter(
+						array_map( 'trim', is_array( $parts ) ? $parts : array( $result ) )
+					)
+				);
+				$options       = array_slice( $options, 0, 3 );
+				$options_count = count( $options );
+				while ( $options_count < 3 ) {
+					$options[] = $options[0] ?? (string) $result;
+					++$options_count;
+				}
+
+				return new WP_REST_Response( array( 'options' => $options ) );
+			},
+			'permission_callback' => static function (): bool {
+				return current_user_can( 'edit_posts' );
+			},
+			'args'                => array(
+				'showTheme'      => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showTypography' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+			),
+		)
+	);
 }
 add_action( 'rest_api_init', 'blockophon_register_rest_routes' );

@@ -40,8 +40,6 @@ function blockophon_is_ai_available(): bool {
 function blockophon_build_ai_prompt( array $data, array $attributes ): string {
 	$show_theme      = (bool) ( $attributes['showTheme'] ?? true );
 	$show_typography = (bool) ( $attributes['showTypography'] ?? true );
-	$show_colors     = (bool) ( $attributes['showColors'] ?? true );
-	$show_plugins    = (bool) ( $attributes['showPlugins'] ?? true );
 
 	$lines = array(
 		sprintf( 'Site name: %s', get_bloginfo( 'name' ) ),
@@ -101,52 +99,6 @@ function blockophon_build_ai_prompt( array $data, array $attributes ): string {
 		}
 		if ( ! empty( $data['body_font'] ) ) {
 			$lines[] = sprintf( 'Body font: %s', (string) $data['body_font'] );
-		}
-	}
-
-	if ( $show_colors && is_array( $data['colors'] ?? null ) && ! empty( $data['colors'] ) ) {
-		$color_names = array_map(
-			static function ( $color ): string {
-				return is_array( $color ) ? (string) ( $color['name'] ?? '' ) : '';
-			},
-			(array) $data['colors']
-		);
-		$color_names = array_filter( $color_names );
-		if ( ! empty( $color_names ) ) {
-			$lines[] = sprintf( 'Color palette: %s', implode( ', ', $color_names ) );
-		}
-	}
-
-	if ( $show_plugins ) {
-		$plugins    = is_array( $data['plugins'] ?? null ) ? (array) $data['plugins'] : array();
-		$mu_plugins = is_array( $data['mu_plugins'] ?? null ) ? (array) $data['mu_plugins'] : array();
-		$drop_ins   = is_array( $data['drop_ins'] ?? null ) ? (array) $data['drop_ins'] : array();
-
-		$plugin_count = count( $plugins );
-		$mu_count     = count( $mu_plugins );
-		$dropin_count = count( $drop_ins );
-
-		$lines[] = sprintf(
-			'Active plugins: %d %s, %d mu-%s, %d %s',
-			$plugin_count,
-			1 === $plugin_count ? 'plugin' : 'plugins',
-			$mu_count,
-			1 === $mu_count ? 'plugin' : 'plugins',
-			$dropin_count,
-			1 === $dropin_count ? 'drop-in' : 'drop-ins'
-		);
-
-		if ( ! empty( $plugins ) ) {
-			$names = array_map(
-				static function ( $plugin_data ): string {
-					return is_array( $plugin_data ) ? (string) ( $plugin_data['Name'] ?? '' ) : '';
-				},
-				$plugins
-			);
-			$names = array_filter( $names );
-			if ( ! empty( $names ) ) {
-				$lines[] = sprintf( 'Plugin names: %s', implode( ', ', $names ) );
-			}
 		}
 	}
 
